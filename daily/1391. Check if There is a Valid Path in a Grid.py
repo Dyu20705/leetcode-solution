@@ -1,62 +1,35 @@
 class Solution:
-    class DisjointSet:
-        def __init__(self, n):
-            self.f = list(range(n))
-
-        def find(self, x):
-            if x == self.f[x]:
-                return x
-            self.f[x] = self.find(self.f[x])
-            return self.f[x]
-
-        def merge(self, x, y):
-            self.f[self.find(x)] = self.find(y)
-
     def hasValidPath(self, grid: List[List[int]]) -> bool:
-        m, n = len(grid), len(grid[0])
-        ds = Solution.DisjointSet(m * n)
+        w, n, e, s = 0, 1, 2, 3
 
-        def getId(x, y):
-            return x * n + y
+        # (dy, dx, next entrance)
+        to_east = (0, 1, w)
+        to_west = (0, -1, e)
+        to_north = (-1, 0, s)
+        to_south = (1, 0, n)
 
-        def detectL(x, y):
-            if y - 1 >= 0 and grid[x][y - 1] in [1, 4, 6]:
-                ds.merge(getId(x, y), getId(x, y - 1))
+        # (0 - from west, 1 - from north, 2 - from east, 3 - from south)
+        path = [None,
+            (to_east, None, to_west, None),   # 1═
+            (None, to_south, None, to_north), # 2║
+            (to_south, None, None, to_west),  # 3╗
+            (None, None, to_south, to_east),  # 4╔
+            (to_north, to_west, None, None),  # 5╝
+            (None, to_east, to_north, None),  # 6╚
+        ]
 
-        def detectR(x, y):
-            if y + 1 < n and grid[x][y + 1] in [1, 3, 5]:
-                ds.merge(getId(x, y), getId(x, y + 1))
+        M, N = len(grid), len(grid[0])
 
-        def detectU(x, y):
-            if x - 1 >= 0 and grid[x - 1][y] in [2, 3, 4]:
-                ds.merge(getId(x, y), getId(x - 1, y))
+        for side in w, n, e, s:
+            r, c = 0, 0
 
-        def detectD(x, y):
-            if x + 1 < m and grid[x + 1][y] in [2, 5, 6]:
-                ds.merge(getId(x, y), getId(x + 1, y))
+            while 0 <= r < M and 0 <= c < N:
+                if path[grid[r][c]][side] is None: break
+                if r == M - 1 and c == N - 1: return True
 
-        def handler(x, y):
-            if grid[x][y] == 1:
-                detectL(x, y)
-                detectR(x, y)
-            elif grid[x][y] == 2:
-                detectU(x, y)
-                detectD(x, y)
-            elif grid[x][y] == 3:
-                detectL(x, y)
-                detectD(x, y)
-            elif grid[x][y] == 4:
-                detectR(x, y)
-                detectD(x, y)
-            elif grid[x][y] == 5:
-                detectL(x, y)
-                detectU(x, y)
-            else:
-                detectR(x, y)
-                detectU(x, y)
+                dy, dx, side = path[grid[r][c]][side]
+                r, c = r + dy, c + dx
 
-        for i in range(m):
-            for j in range(n):
-                handler(i, j)
+                if r == 0 and c == 0: return False
 
-        return ds.find(getId(0, 0)) == ds.find(getId(m - 1, n - 1))
+        return False
