@@ -1,5 +1,5 @@
 class Solution:
-    def hasValidPath(self, grid: List[List[int]]) -> bool:
+    def hasValidPath(self, grid):
         w, n, e, s = 0, 1, 2, 3
 
         # (dy, dx, next entrance)
