@@ -1,6 +1,5 @@
 from bisect import bisect_left
 
-
 class Solution(object):
     def maxDistance(self, side, points, k):
         """
