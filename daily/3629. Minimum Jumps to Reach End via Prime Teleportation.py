@@ -1,6 +1,10 @@
 '''
 Đây là thuật giải cho bài toán 3629. Minimum Jumps to Reach End via Prime Teleportation trên LeetCode. Bài toán yêu cầu tìm số bước nhảy tối thiểu để đi từ vị trí đầu tiên đến vị trí cuối cùng trong một mảng, với các bước nhảy có thể là nhảy sang trái, nhảy sang phải hoặc nhảy đến một vị trí khác có giá trị nguyên dương nhỏ nhất chia hết cho giá trị tại vị trí hiện tại (nếu có). Thuật giải sử dụng thuật toán BFS để khám phá các vị trí tiếp theo và một số kỹ thuật tối ưu hóa để cải thiện hiệu suất của thuật toán.
 Hiệu suất hiện tại: Runtime O(n log log n + n) - O(n log log n) để tính toán số nguyên dương nhỏ nhất chia hết cho mỗi số nguyên dương từ 2 đến 10^6 bằng thuật toán Sieve of Eratosthenes, và O(n) để xây dựng bucket và thực hiện BFS. Space O(n + MX) - O(n) cho mảng visited và O(MX) cho mảng used, cùng với không gian cho bucket.
+Ý tưởng:
++ Tính toán tất cả các số nguyên dương nhỏ hơn hoặc bằng 10^6 và lưu trữ số nguyên dương nhỏ nhất chia hết cho mỗi số nguyên dương đó (spf - smallest prime factor). Đồng thời, lưu trữ tất cả các số nguyên dương nhỏ hơn hoặc bằng 10^6 là số nguyên dương nhỏ nhất chia hết cho một số nguyên dương nào đó (primes - danh sách các số nguyên dương nhỏ nhất chia hết cho một số nguyên dương nào đó).
++ Sử dụng thuật toán BFS để tìm số bước nhảy tối thiểu từ vị trí đầu tiên đến vị trí cuối cùng trong mảng nums. Mỗi bước nhảy có thể là nhảy sang trái, nhảy sang phải hoặc nhảy đến một vị trí khác có giá trị nguyên dương nhỏ nhất chia hết cho giá trị tại vị trí hiện tại (nếu có). Sử dụng một hàng đợi để lưu trữ các vị trí cần khám phá và một mảng bytearray để đánh dấu các vị trí đã được thăm.
++ Để tối ưu hóa hiệu suất, các biến cục bộ được tạo ra để tránh việc truy cập vào các biến toàn cục trong vòng lặp BFS. Điều này giúp giảm thời gian truy cập và cải thiện hiệu suất của thuật toán.
 '''
 from typing import List
 
