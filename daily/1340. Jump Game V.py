@@ -1,3 +1,9 @@
+#thuật toán dưới đây giải quyết bài toán thế nào?
+#Ý tưởng chính là sử dụng hai deque để tìm vị trí của phần tử lớn nhất bên trái và bên phải trong phạm vi d.
+#Sau đó, sử dụng một cây segment để lưu trữ và truy vấn giá trị dp (số bước nhảy tối đa)
+#cho các phần tử đã xử lý. Các phần tử được xử lý theo thứ tự tăng dần của giá trị arr[i],
+#đảm bảo rằng khi xử lý phần tử i, tất cả các phần tử nhỏ hơn đã được cập nhật dp.
+#Kết quả cuối cùng là giá trị dp lớn nhất được tìm thấy.
 from collections import deque
 
 class Solution(object):
