@@ -57,3 +57,42 @@ class Solution:
                 tail += 1
 
         raise ValueError("Invalid rooted tree")
+'''
+class Solution:
+    def finishTime(
+        self,
+        n: int,
+        edges: list[list[int]],
+        b: list[int]
+    ) -> int:
+        parent = [-1] * n
+
+        for u, v in edges:
+            parent[v] = u
+
+        minimum = [0] * n
+        maximum = [None] * n
+
+        for u in range(n - 1, -1, -1):
+            current_max = maximum[u]
+
+            if current_max is not None:
+                b[u] += (current_max << 1) - minimum[u]
+
+            p = parent[u]
+
+            if p >= 0:
+                value = b[u]
+                parent_max = maximum[p]
+
+                if parent_max is None:
+                    minimum[p] = value
+                    maximum[p] = value
+                else:
+                    if value > parent_max:
+                        maximum[p] = value
+
+                    if value < minimum[p]:
+                        minimum[p] = value
+
+        return b[0]'''

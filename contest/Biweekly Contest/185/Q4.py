@@ -1,112 +1,165 @@
-class Solution:
-    def goodIntegers(self, l: int, r: int, k: int) -> int:
-        max_digits = len(str(r))
+from bisect import bisect_right
 
-        denoluvira = (l, r, k)
+MAX_DIGITS = 16
+ASCII_SIZE = 58
 
-        if k == 9:
-            return r - l + 1
+def build_tables():
+    tables = []
 
-        ways = [[0] * 10 for _ in range(max_digits)]
+    for k in range(10):
+        dp = [[0] * 10 for _ in range(MAX_DIGITS + 1)]
+        dp[1] = [1] * 10
 
-        prefix = [[0] * 11 for _ in range(max_digits)]
+        for length in range(2, MAX_DIGITS + 1):
+            previous = dp[length - 1]
+            current = dp[length]
 
-        ways[0] = [1] * 10
-
-        for digit in range(10):
-            prefix[0][digit + 1] = prefix[0][digit] + 1
-
-        for remaining in range(1, max_digits):
-            previous_prefix = prefix[remaining - 1]
-            current_ways = ways[remaining]
-            current_prefix = prefix[remaining]
+            prefix = [0] * 11
+            running = 0
 
             for digit in range(10):
-                low = digit - k
-                if low < 0:
-                    low = 0
+                running += previous[digit]
+                prefix[digit + 1] = running
 
-                high = digit + k
-                if high > 9:
-                    high = 9
+            for digit in range(10):
+                left = digit - k
+                if left < 0:
+                    left = 0
 
-                current_ways[digit] = (
-                    previous_prefix[high + 1]
-                    - previous_prefix[low]
-                )
+                right = digit + k + 1
+                if right > 10:
+                    right = 10
 
-                current_prefix[digit + 1] = (
-                    current_prefix[digit]
-                    + current_ways[digit]
-                )
+                current[digit] = prefix[right] - prefix[left]
 
-        length_prefix = [0] * (max_digits + 1)
+        base = [[0] * ASCII_SIZE for _ in range(MAX_DIGITS + 1)]
 
-        for length in range(1, max_digits + 1):
-            current_prefix = prefix[length - 1]
+        shorter_count = 0
 
-            exact_length_count = (
-                current_prefix[10]
-                - current_prefix[1]
-            )
+        for length in range(1, MAX_DIGITS + 1):
+            count = shorter_count
 
-            length_prefix[length] = (
-                length_prefix[length - 1]
-                + exact_length_count
-            )
+            for first_digit in range(1, 10):
+                base[length][48 + first_digit] = count
+                count += dp[length][first_digit]
 
-        def count_less_or_equal(x: int) -> int:
-            if x <= 0:
-                return 0
+            shorter_count = count
 
-            digits = [ord(char) - 48 for char in str(x)]
-            digit_count = len(digits)
+        dp_prefix = [[0] * 11 for _ in range(MAX_DIGITS + 1)]
 
-            result = length_prefix[digit_count - 1]
+        for remaining in range(1, MAX_DIGITS + 1):
+            running = 0
+            row = dp[remaining]
+            prefix = dp_prefix[remaining]
 
-            first_digit = digits[0]
-            remaining = digit_count - 1
+            for digit in range(10):
+                running += row[digit]
+                prefix[digit + 1] = running
 
-            if first_digit > 1:
-                current_prefix = prefix[remaining]
-                result += (
-                    current_prefix[first_digit]
-                    - current_prefix[1]
-                )
+        step = [
+            [[None] * ASCII_SIZE for _ in range(ASCII_SIZE)]
+            for _ in range(MAX_DIGITS + 1)
+        ]
 
-            previous_digit = first_digit
+        for remaining in range(1, MAX_DIGITS + 1):
+            prefix = dp_prefix[remaining]
+            layer = step[remaining]
 
-            for position in range(1, digit_count):
-                current_digit = digits[position]
-                remaining = digit_count - position - 1
+            for previous in range(10):
+                valid_left = previous - k
+                if valid_left < 0:
+                    valid_left = 0
 
-                low = previous_digit - k
-                if low < 0:
-                    low = 0
+                valid_right = previous + k
+                if valid_right > 9:
+                    valid_right = 9
 
-                high = previous_digit + k
-                if high > 9:
-                    high = 9
+                transition_row = layer[48 + previous]
 
-                upper = current_digit - 1
-                if upper > high:
-                    upper = high
+                for current in range(10):
+                    smaller_right = current - 1
 
-                if upper >= low:
-                    current_prefix = prefix[remaining]
-                    result += (
-                        current_prefix[upper + 1]
-                        - current_prefix[low]
+                    if smaller_right > valid_right:
+                        smaller_right = valid_right
+
+                    if smaller_right >= valid_left:
+                        contribution = (
+                            prefix[smaller_right + 1]
+                            - prefix[valid_left]
+                        )
+                    else:
+                        contribution = 0
+
+                    valid = valid_left <= current <= valid_right
+
+                    transition_row[48 + current] = (
+                        contribution,
+                        valid,
                     )
 
-                if current_digit < low or current_digit > high:
-                    return result
+        tables.append((base, step))
 
-                previous_digit = current_digit
+    return tuple(tables)
 
-            return result + 1
+
+TABLES = build_tables()
+
+REP_DIGIT_NUMBERS = []
+
+for digit in range(1, 10):
+    value = 0
+
+    for _ in range(MAX_DIGITS):
+        value = value * 10 + digit
+        REP_DIGIT_NUMBERS.append(value)
+
+REP_DIGIT_NUMBERS.sort()
+REP_DIGIT_NUMBERS = tuple(REP_DIGIT_NUMBERS)
+
+
+def count_upto(x: int, base, step) -> int:
+
+    if x <= 0:
+        return 0
+
+    if x < 10:
+        return x
+
+    text = str(x)
+    length = len(text)
+
+    previous = ord(text[0])
+
+    total = base[length][previous]
+
+    for index in range(1, length):
+        current = ord(text[index])
+
+        contribution, valid = step[length - index][previous][current]
+        total += contribution
+
+        if not valid:
+            return total
+
+        previous = current
+
+    return total + 1
+
+
+class Solution:
+    def goodIntegers(self, l: int, r: int, k: int) -> int:
+        if k == 9:
+            return max(r, 0) - max(l - 1, 0)
+
+        if k == 0:
+            return (
+                bisect_right(REP_DIGIT_NUMBERS, r)
+                - bisect_right(REP_DIGIT_NUMBERS, l - 1)
+            )
+
+        base, step = TABLES[k]
 
         return (
-            count_less_or_equal(r)
-            - count_less_or_equal(l - 1)
+            count_upto(r, base, step)
+            - count_upto(l - 1, base, step)
         )
