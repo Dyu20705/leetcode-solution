@@ -1,132 +1,38 @@
+from bisect import bisect_left, bisect_right
+
 class Solution:
     def countValidSubarrays(self, nums: list[int], x: int) -> int:
-        if not 0 <= x <= 9:
-            return 0
+        total = sum(nums)
 
-        n = len(nums)
 
-        prefix = [0] * (n + 1)
-        non_negative = True
-        total = 0
+        ranges = []
+        p = 1
+        
+            
+        while x * p <= total:
+            ranges.append((x*p, (x+1) * p - 1))
+            p *= 10
 
-        for i, value in enumerate(nums):
-            if value < 0:
-                non_negative = False
+        buckets = [[] for _ in range(10)]
+        buckets[0].append(0)
 
-            total += value
-            prefix[i + 1] = total
+        cur = 0
+        res = 0
 
-        if not non_negative:
-            return self._quadratic(nums, x)
+        for num in nums:
+            cur += num
+            need = (cur % 10 - x) % 10
 
-        if x == 0:
-            frequency = {}
-            ans = 0
+            arr = buckets[need]
 
-            for value in prefix:
-                ans += frequency.get(value, 0)
-                frequency[value] = frequency.get(value, 0) + 1
+            
+            for L,R in ranges:
+                 lo = cur - R
+                 hi = cur - L
 
-            return ans
+                 res += (bisect_right(arr, hi) - bisect_left(arr, lo)
+                     )
+            
+            buckets[cur % 10].append(cur)
 
-        ans = 0
-        place = 1
-
-        while x * place <= total:
-            lower = x * place
-
-            if place == 1:
-                upper = x
-            else:
-                upper = (x + 1) * place - 1
-
-            residue_count = [0] * 10
-
-            add_ptr = 0
-            remove_ptr = 0
-
-            for right, current_prefix in enumerate(prefix):
-                while (
-                    add_ptr < right
-                    and prefix[add_ptr] <= current_prefix - lower
-                ):
-                    residue_count[prefix[add_ptr] % 10] += 1
-                    add_ptr += 1
-
-                while (
-                    remove_ptr < add_ptr
-                    and prefix[remove_ptr] < current_prefix - upper
-                ):
-                    residue_count[prefix[remove_ptr] % 10] -= 1
-                    remove_ptr += 1
-
-                required_residue = (current_prefix - x) % 10
-                ans += residue_count[required_residue]
-
-            place *= 10
-
-        return ans
-
-    @staticmethod
-    def _quadratic(nums: list[int], x: int) -> int:
-        ans = 0
-        n = len(nums)
-
-        for left in range(n):
-            current_sum = 0
-
-            for right in range(left, n):
-                current_sum += nums[right]
-
-                if current_sum < 0:
-                    continue
-
-                if current_sum == 0:
-                    ans += x == 0
-                    continue
-
-                if current_sum % 10 != x:
-                    continue
-
-                first_digit = current_sum
-                while first_digit >= 10:
-                    first_digit //= 10
-
-                ans += first_digit == x
-
-        return ans
-    
-'''
-class Solution:
-    def countValidSubarrays(self, nums: list[int], x: int) -> int:
-        if not 0 <= x <= 9:
-            return 0
-
-        ans = 0
-        n = len(nums)
-
-        for left in range(n):
-            current_sum = 0
-
-            for right in range(left, n):
-                current_sum += nums[right]
-
-                if current_sum < 0:
-                    continue
-
-                if current_sum == 0:
-                    ans += x == 0
-                    continue
-
-                if current_sum % 10 != x:
-                    continue
-
-                first_digit = current_sum
-                while first_digit >= 10:
-                    first_digit //= 10
-
-                if first_digit == x:
-                    ans += 1
-
-        return ans
-'''
+        return res
