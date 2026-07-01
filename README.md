@@ -4,9 +4,7 @@ Kho lưu trữ các lời giải LeetCode bằng Python, được tổ chức th
 
 ## Mục tiêu
 
-- Lưu lại lời giải cho các bài LeetCode đã làm.
-- Tách nội dung theo ngữ cảnh luyện tập: `daily`, `contest`, `quest`.
-- Duy trì cấu trúc thư mục đơn giản để dễ tìm bài theo số thứ tự hoặc chủ đề.
+Lưu lại lời giải cho các bài LeetCode đã làm.
 
 ## Cấu trúc thư mục
 
@@ -16,6 +14,7 @@ leetcode-solution/
 │   ├── Biweekly Contest/
 │   └── Weekly Contest/
 ├── daily/
+├── interview150/
 ├── quest/
 │   └── ds&a/
 ├── main.py
@@ -24,7 +23,7 @@ leetcode-solution/
 
 ### 1. `daily/`
 
-Chứa các bài luyện tập hằng ngày, hiện có **37** lời giải.
+Chứa các bài luyện tập hằng ngày
 
 Quy ước đặt tên file:
 
@@ -40,7 +39,7 @@ Ví dụ:
 
 ### 2. `contest/`
 
-Chứa lời giải cho các kỳ thi đấu LeetCode, hiện có **18** lời giải.
+Chứa lời giải cho các kỳ thi đấu LeetCode
 
 Tổ chức theo:
 
@@ -56,9 +55,13 @@ Q3. ...
 Q4. ...
 ```
 
-### 3. `quest/`
+### 3. `interview150/`
 
-Chứa các bài luyện theo chủ đề dữ liệu và giải thuật, hiện có **10** lời giải.
+Chứa các bài luyện interview coding
+
+### 4. `quest/`
+
+Chứa các bài luyện theo chủ đề dữ liệu và giải thuật
 
 Một số nhóm đang có:
 
